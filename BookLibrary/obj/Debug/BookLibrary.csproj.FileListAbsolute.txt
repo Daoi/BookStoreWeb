@@ -1,0 +1,9 @@
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\bin\Debug\BookLibrary.dll
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\bin\Debug\BookLibrary.pdb
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\obj\Debug\BookLibrary.csprojAssemblyReference.cache
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\obj\Debug\BookLibrary.csproj.CoreCompileInputs.cache
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\obj\Debug\BookLibrary.dll
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\obj\Debug\BookLibrary.pdb
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\bin\Debug\Utilities.dll
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\bin\Debug\Utilities.pdb
+C:\Users\Mrah\source\repos\BookStoreWeb\BookLibrary\obj\Debug\BookLibrary.csproj.CopyComplete
