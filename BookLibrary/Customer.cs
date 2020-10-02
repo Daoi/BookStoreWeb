@@ -13,5 +13,13 @@ namespace BookLibrary
         public string Address { get; set; }
         public string StudentID { get; set; }
         public string PhoneNum { get; set; }
+        public List<OrderedBook> Orders { get; set;}
+
+        public Customer()
+        {
+            Orders = new List<OrderedBook>();
+            StudentID = "No Id";
+        }
+
     }
 }

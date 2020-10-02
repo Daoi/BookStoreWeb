@@ -6,9 +6,10 @@ using System.Web.UI.WebControls;
 using Utilities;
 using BookLibrary;
 using System.Text.RegularExpressions;
-using System.Web;
-
-//Finish project
+using System.Web.UI;
+//Kevin Lynch
+//3342 9/30/2020 Section 002
+//Project 2 - Temple Book Store
 
 namespace BookStoreWeb
 {
@@ -37,22 +38,27 @@ namespace BookStoreWeb
         }
 
         DBConnect dbc = new DBConnect();
-        List<OrderedBook> orderList;
-        Customer customer = new Customer();  
-
+        Customer customer;
+        UpdatePanel up;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                customer = new Customer();
                 DataSet ds = dbc.GetDataSet("Select * FROM Books");
                 Session["DataSet"] = ds;
+                Session["Customer"] = customer;
                 UpdateInputBooksGridView();
                 foreach(GridViewRow row in gvBooksInput.Rows)
                 {
                     OrderedBook defaultPrice = OrderedBook.CreateOrder(row);
                     UpdatePrice(defaultPrice, row);
                 }
-                    
+            }
+            if(Session["OrderComplete"] != null && (bool)Session["OrderComplete"] == true)
+            {
+                Session["OrderComplete"] = false;
+                ClearInputs();
             }
         }
 
@@ -62,11 +68,6 @@ namespace BookStoreWeb
             gvBooksInput.DataBind();
         }
 
-        public void UpdateOutputBooksGridView()
-        {
-            gvBooksOrder.DataSource = orderList;
-            gvBooksOrder.DataBind();
-        }
 
         protected void btnSubmitOrder_Click(object sender, EventArgs e)
         {
@@ -130,15 +131,37 @@ namespace BookStoreWeb
             }
             Session["OrderComplete"] = true;
             //Bind ordered books to Order Gridview
-            orderList = booksOrdered;
-            gvBooksOrder.DataSource = orderList;
+            Customer customer = (Customer)Session["Customer"];
+            if (!string.Equals(txtStudentID.Text, customer.StudentID))
+            {
+                GetCustomerInfo();
+                customer = (Customer)Session["Customer"];
+            }
+
+            foreach (OrderedBook order in booksOrdered)
+            {
+                customer.Orders.Add(order);
+            }
+            gvBooksOrder.DataSource = customer.Orders;
             gvBooksOrder.DataBind();
+
             UpdateViewOrder();
             InventoryManagement.UpdateRecords(booksOrdered);
         }
 
+        public void GetCustomerInfo()
+        {
+            Customer customer = new Customer();
+            customer.Address = txtStudentAddress.Text;
+            customer.StudentID = txtStudentID.Text;
+            customer.Name = txtStudentName.Text;
+            customer.PhoneNum = txtStudentPhoneNumber.Text;
+            customer.Campus = ddlCampus.SelectedValue;
+            Session["Customer"] = customer;
+        }
 
 
+        //After an order is submitted
         public void UpdateViewOrder()
         {
             foreach (TextBox txt in divInputs.Controls.OfType<TextBox>().ToList())
@@ -157,27 +180,16 @@ namespace BookStoreWeb
             gvBooksOrder.Columns[(int)OrderField.TotalCost].FooterText = orderTotal.ToString("c");
             gvBooksOrder.DataBind();
 
-
         }
 
-        public void ShowOrderPage()
-        {
-            foreach (TextBox txt in divInputs.Controls.OfType<TextBox>().ToList())
-                txt.Enabled = true;
-            ddlCampus.Enabled = true;
-            lblSubmit.Text = "";
-            lblSubmit.Visible = true;
-            gvBooksOrder.Visible = false;
-            gvBooksInput.Visible = true;
-            gvReport.Visible = false;
-            btnSubmitOrder.Visible = true;
-            divInputs.Visible = true;
-        }
 
+
+        //Update price column for order table
 
         public void UpdatePrice(OrderedBook modified, GridViewRow row)
         {
-            row.Cells[(int)InputField.Price].Text = modified.TotalCost.ToString("c");
+            Label price = (Label)row.FindControl("upPrice").FindControl("lblPrice");
+            price.Text = modified.TotalCost.ToString("c");
         }
 
         protected void txtQuantity_TextChanged(object sender, EventArgs e)
@@ -204,7 +216,21 @@ namespace BookStoreWeb
             UpdatePrice(modified, row);
         }
 
+        //Navigation
 
+        public void ShowOrderPage()
+        {
+            foreach (TextBox txt in divInputs.Controls.OfType<TextBox>().ToList())
+                txt.Enabled = true;
+            ddlCampus.Enabled = true;
+            lblSubmit.Text = "";
+            lblSubmit.Visible = true;
+            gvBooksOrder.Visible = false;
+            gvBooksInput.Visible = true;
+            gvReport.Visible = false;
+            btnSubmitOrder.Visible = true;
+            divInputs.Visible = true;
+        }
 
         protected void LinkButtonOrderPage_Click(object sender, EventArgs e)
         {
@@ -214,6 +240,16 @@ namespace BookStoreWeb
         protected void LinkButtonMgmtReport_Click(object sender, EventArgs e)
         {
             ShowMgmtReportPage();
+        }
+
+        private void ClearInputs()
+        {
+            divInputs.Controls.OfType<TextBox>().ToList().ForEach(tb => tb.Text = "");
+            ddlCampus.SelectedIndex = 0;
+            gvBooksInput.DataSource = null;
+            gvBooksInput.DataBind();
+            gvBooksInput.DataSource = (DataSet)Session["DataSet"];
+            gvBooksInput.DataBind();
         }
 
         private void ShowMgmtReportPage()
